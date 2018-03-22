@@ -1,0 +1,43 @@
+# packages to import
+import(dplyr)
+import(tidyr)
+import(stringr)
+
+# export adders
+export(tidy_orthofinder)
+export(create_tidyorthogroups)
+export(add_orthogroups_species)
+export(add_metaorthogroups)
+export(add_genome_data)
+export(add_bedfiles)
+export(add_gff_files)
+
+# export getters
+export(metaorthogroup_content_matrix)
+export(orthogroup_content_matrix_species)
+export(species_n_core_orthogroups)
+export(genomes_n_um_orthogroups)
+export(genomes_n_loo_core_orthogroups)
+export(species_av_orthogroups)
+export(orthogroups_ordered)
+export(genomes_ordered)
+export(plot_genomes_per_species)
+
+# export processors
+export(process_new_orthogroup_names)
+
+# export readers
+export(read_phylip_distmat)
+export(read_orthogroups)
+export(read_hmmer_domtbl)
+
+# export secondaries_genomes
+export(add_pcoa)
+
+# export synonyms
+export(add_orthogroups_clade)
+export(orthogroup_content_matrix_clade)
+export(gene_content_clade)
+export(get_gene_count_matrix)
+export(get_n_core)
+export(n_core_loo)

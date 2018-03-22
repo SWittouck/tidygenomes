@@ -1,7 +1,5 @@
 # These functions add external data to the tog object. 
 
-tidy_orthofinder <- read_orthogroups
-
 create_tidyorthogroups <- function(orthofinder_dir = NULL, clade = NULL) {
   
   if (is.null(orthofinder_dir)) {
@@ -29,7 +27,7 @@ create_tidyorthogroups <- function(orthofinder_dir = NULL, clade = NULL) {
 
 add_orthogroups_species <- function(tog, orthofinder_dir, clade) {
   
-  genes_new <- tidy_orthofinder(orthofinder_dir)
+  genes_new <- read_orthogroups(orthofinder_dir)
   
   genomes_new <- tibble(
     genome = genes_new$genome %>% unique(),
@@ -57,7 +55,7 @@ add_orthogroups_species <- function(tog, orthofinder_dir, clade) {
 
 add_metaorthogroups <- function(tog, orthofinder_dir) {
   
-  orthogroups <- tidy_orthofinder(orthofinder_dir) %>%
+  orthogroups <- read_orthogroups(orthofinder_dir) %>%
     select(orthogroup_name = gene, metaorthogroup = orthogroup)
 
   tog$orthogroups <- tog$orthogroups %>%

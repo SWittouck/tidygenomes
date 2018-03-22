@@ -4,7 +4,6 @@ import(tidyr)
 import(stringr)
 
 # export adders
-export(tidy_orthofinder)
 export(create_tidyorthogroups)
 export(add_orthogroups_species)
 export(add_metaorthogroups)

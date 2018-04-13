@@ -2,9 +2,11 @@
 # EMBOSS tool "distmat"
 # Returns a tidy tibble, where sequence_1 is always before sequence_2 in sorting
 # order. 
-read_phylip_distmat <- function(fin, include_diagonal = T) {
-  
-  distances_raw <- read_tsv(fin, col_names = F, skip = 8) %>%
+# Important: the "skip" parameter might need to be adjusted. This is the number
+# of lines before the actual distance values start.
+read_phylip_distmat <- function(fin, include_diagonal = T, skip = 8) {
+
+  distances_raw <- read_tsv(fin, col_names = F, skip = skip) %>%
     separate(ncol(.), into = c("name", "number"), sep = " ")
   
   names <- distances_raw$name
@@ -16,9 +18,17 @@ read_phylip_distmat <- function(fin, include_diagonal = T) {
     `names<-`(names) %>%
     mutate(sequence_1 = !! names) %>%
     gather(key = "sequence_2", value = "distance", - sequence_1, na.rm = T) %>%
-    mutate(pair = map2_chr(sequence_1, sequence_2, ~ c(.x, .y) %>% sort %>% paste(collapse = "|"))) %>%
-    select(pair, distance) %>%
-    separate(pair, into = c("sequence_1", "sequence_2"), sep = "\\|")
+    mutate_at("distance", as.double)
+  
+  distances_1 <- distances %>%
+    filter(sequence_1 > sequence_2)
+  
+  distances_2 <- distances %>%
+    filter(sequence_2 > sequence_1) %>%
+    mutate(sequence_1_temp = sequence_2, sequence_2_temp = sequence_1) %>%
+    select(sequence_1 = sequence_1_temp, sequence_2 = sequence_2_temp)
+  
+  distances <- bind_rows(distances_1, distances_2)
   
   if (! include_diagonal) {
     distances <- distances %>%

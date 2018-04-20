@@ -64,9 +64,15 @@ read_orthogroups <- function(orthofinder_dir) {
 
 # Parser for hmmer domtables. 
 # Returns tidy table where each row is a hit. 
+# Remark: the implementation of this function should avoid using the function
+# read_table2(), since it can't deal with comment lines after the data (probably
+# a bug in readr)
 read_hmmer_domtbl <- function(fin) {
   
-  read_table2(fin, comment = "#", col_names = F) %>%
+  read_lines(fin) %>%
+    tibble(line = .) %>%
+    filter(! str_detect(line, "^#")) %>%
+    separate(line, into = str_c("X", 1:23), sep = "[ ]+", convert = T) %>%
     `names<-`(c(
       "target", "target_accession", "target_length", 
       "query", "query_accession", "query_length", 

@@ -24,9 +24,9 @@ read_phylip_distmat <- function(fin, include_diagonal = T, skip = 8) {
     filter(sequence_1 > sequence_2)
   
   distances_2 <- distances %>%
-    filter(sequence_2 > sequence_1) %>%
+    filter(sequence_2 < sequence_1) %>%
     mutate(sequence_1_temp = sequence_2, sequence_2_temp = sequence_1) %>%
-    select(sequence_1 = sequence_1_temp, sequence_2 = sequence_2_temp)
+    select(sequence_1 = sequence_1_temp, sequence_2 = sequence_2_temp, distance)
   
   distances <- bind_rows(distances_1, distances_2)
   

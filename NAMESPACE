@@ -1,6 +1,7 @@
 # packages to import
 import(dplyr)
 import(tidyr)
+import(readr)
 import(stringr)
 
 # export adders

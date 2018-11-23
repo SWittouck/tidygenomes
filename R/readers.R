@@ -45,14 +45,14 @@ read_orthogroups <- function(orthofinder_dir) {
   
   genes_assigned <- orthofinder_dir %>%
     paste0("/Orthogroups.csv") %>%
-    readr::read_tsv(col_names = T) %>%
+    readr::read_tsv(col_names = T, col_types = cols(.default = "c")) %>%
     rename(orthogroup = X1) %>%
     gather(key = "genome", value = "gene", na.rm = T, - orthogroup) %>%
     separate_rows(gene, sep = ", ")
   
   genes_unassigned <- orthofinder_dir %>%
     paste0("/Orthogroups_UnassignedGenes.csv") %>%
-    readr::read_tsv(col_names = T) %>%
+    readr::read_tsv(col_names = T, col_types = cols(.default = "c")) %>%
     rename(orthogroup = X1) %>%
     gather(key = "genome", value = "gene", na.rm = T, - orthogroup)
   

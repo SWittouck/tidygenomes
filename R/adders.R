@@ -25,6 +25,18 @@ create_tidyorthogroups <- function(orthofinder_dir = NULL, clade = NULL) {
   
 }
 
+add_genome_tibble <- function(tog, genome_tibble) {
+  
+  modify_at(tog, "genomes", left_join, genome_tibble)
+  
+}
+
+add_orthogroup_tibble <- function(tog, orthogroup_tibble) {
+  
+  modify_at(tog, "orthogroups", left_join, orthogroup_tibble)
+  
+}
+
 add_orthogroups_species <- function(tog, orthofinder_dir, clade) {
   
   genes_new <- read_orthogroups(orthofinder_dir)

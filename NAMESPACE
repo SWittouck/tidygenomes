@@ -11,6 +11,8 @@ export(add_metaorthogroups)
 export(add_genome_data)
 export(add_bedfiles)
 export(add_gff_files)
+export(add_genome_tibble)
+export(add_orthogroup_tibble)
 
 # export getters
 export(metaorthogroup_content_matrix)

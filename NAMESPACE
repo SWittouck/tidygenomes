@@ -24,7 +24,6 @@ export(genomes_n_loo_core_orthogroups)
 export(species_av_orthogroups)
 export(orthogroups_ordered)
 export(genomes_ordered)
-export(plot_genomes_per_species)
 
 # export processors
 export(process_new_orthogroup_names)
@@ -50,4 +49,7 @@ export(expand_clade)
 export(expand_clades)
 
 # export handlers
-export(filter_orthogroups)
+export(filter_orthogroups
+       
+# export plotters
+export(plot_genomes_per_species)

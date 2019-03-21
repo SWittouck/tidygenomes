@@ -30,3 +30,23 @@ expand_clades <- function(clades, genome_1 = genome_1, genome_2 = genome_2, tree
     select(- !! genome_1, - !! genome_2)
   
 }
+
+# function to convert tibble to matrix
+# (use as_tibble to do the opposite)
+as_matrix <- function(tibble, rownames = NULL) {
+  
+  if (! is.null(rownames)) {
+    
+    tibble %>%
+      `class<-`("data.frame") %>%
+      `rownames<-`(.[[rownames]]) %>%
+      select(- one_of(rownames)) %>%
+      as.matrix()
+    
+  } else {
+    
+    as.matrix(tibble)
+    
+  }
+  
+}

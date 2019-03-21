@@ -48,6 +48,7 @@ export(n_core_loo)
 # export varia functions
 export(expand_clade)
 export(expand_clades)
+export(as_matrix)
 
 # export handlers
 export(filter_orthogroups)

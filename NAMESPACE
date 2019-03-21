@@ -49,7 +49,7 @@ export(expand_clade)
 export(expand_clades)
 
 # export handlers
-export(filter_orthogroups
+export(filter_orthogroups)
        
 # export plotters
 export(plot_genomes_per_species)

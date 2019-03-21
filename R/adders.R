@@ -37,6 +37,18 @@ add_orthogroup_tibble <- function(tog, orthogroup_tibble) {
   
 }
 
+add_n_genomes_in_orthogroup <- function(tog) {
+  
+  orthogroups_n_genomes <- 
+    lgc$genes %>%
+    distinct(genome, orthogroup) %>%
+    count(orthogroup) %>%
+    rename(n_genomes = n)
+  
+  add_orthogroup_tibble(tog, orthogroups_n_genomes)
+  
+}
+
 add_orthogroups_species <- function(tog, orthofinder_dir, clade) {
   
   genes_new <- read_orthogroups(orthofinder_dir)

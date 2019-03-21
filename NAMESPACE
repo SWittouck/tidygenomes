@@ -13,6 +13,7 @@ export(add_bedfiles)
 export(add_gff_files)
 export(add_genome_tibble)
 export(add_orthogroup_tibble)
+export(add_n_genomes_in_orthogroup)
 
 # export getters
 export(metaorthogroup_content_matrix)

@@ -40,7 +40,7 @@ add_orthogroup_tibble <- function(tog, orthogroup_tibble) {
 add_n_genomes_in_orthogroup <- function(tog) {
   
   orthogroups_n_genomes <- 
-    lgc$genes %>%
+    tog$genes %>%
     distinct(genome, orthogroup) %>%
     count(orthogroup) %>%
     rename(n_genomes = n)

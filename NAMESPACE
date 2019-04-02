@@ -54,6 +54,7 @@ export(as_matrix)
 export(filter_orthogroups)
 export(filter_patterns)
 export(mutate_genomes)
+export(filter_genomes)
        
 # export plotters
 export(plot_genomes_per_species)

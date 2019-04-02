@@ -19,3 +19,12 @@ mutate_genomes <- function(tog, ...) {
   modify_at(tog, "genomes", mutate, ...)
   
 }
+
+filter_genomes <- function(to, ...) {
+  
+  to %>%
+    purrr::modify_at("genomes", filter, ...) %>%
+    purrr::modify_at("genes", filter, genome %in% .$genomes$genome) %>%
+    purrr::modify_at("orthogroups", filter, orthogroup %in% .$genes$orthogroup)
+  
+}

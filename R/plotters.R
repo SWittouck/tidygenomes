@@ -52,18 +52,33 @@ plot_genomes_per_species <- function(genomes, metric1, metric2, cladevar = clade
   
 }
 
-upset_plot <- function(tog, genome_name, genome_col, genome_bold, n = 50) {
-    
+upset_plot <- function(
+  tog, genome_name, genome_col, genome_bold, 
+  color_scale = scale_color_brewer(palette = "Paired", guide = "none"), 
+  n = 50) {
+  
   genome_name <- rlang::enexpr(genome_name) 
   genome_col <- rlang::enexpr(genome_col)
   genome_bold <- rlang::enexpr(genome_bold)
   
-  tidypatterns <- 
-    tidypatterns(tog) %>%
-    modify_at("patterns", arrange, desc(n)) %>%
-    modify_at("patterns", mutate, rank = 1:n()) %>%
-    filter_patterns(rank <= !! n) %>%
-    modify_at("patterns", mutate, pattern_ordered = factor(pattern, levels = pattern))
+  if (is.null(tog$patterns)) stop("no patterns found")
+  
+  tog$patterns <-
+    tog$patterns %>%
+    arrange(desc(n_orthogroups)) %>%
+    slice(1:UQ(n)) %>%
+    mutate(pattern_fct = factor(pattern, levels = pattern)) 
+  
+  tog$genomes <- 
+    tog$genomes %>%
+    mutate(genome_fct = factor(
+      genome, levels = !! genomes_ladderized(tog$tree)
+    )) %>%
+    arrange(desc(genome_fct)) %>%
+    mutate(genome_name_fct = factor(
+      !! genome_name, levels = !! genome_name
+    )) %>%
+    rename(genome_bold = !! genome_bold)
   
   theme_upset <- 
     theme(
@@ -72,37 +87,26 @@ upset_plot <- function(tog, genome_name, genome_col, genome_bold, n = 50) {
       axis.ticks = element_blank(), 
       panel.background = element_rect(fill = "transparent"), 
       plot.background = element_rect(fill = "transparent")
-  )
-  
-  tog$genomes <-
-    tog$genomes %>%
-    arrange(!! genome_name) %>%
-    group_by(!! genome_col) %>%
-    nest() %>%
-    mutate(genome_col = rep_len(as.character(1:12), nrow(.))) %>%
-    unnest() %>%
-    ungroup()
-  
-  tog$genomes <- rename(tog$genomes, genome_bold = !! genome_bold)
+    )
   
   plot_main <- 
-    tidypatterns$components %>%
-    left_join(tidypatterns$patterns) %>%
+    tog$components %>%
+    right_join(tog$patterns) %>%
     left_join(tog$genomes) %>%
-    ggplot(aes(x = pattern_ordered, y = !! genome_name, group = pattern_ordered)) +
+    ggplot(aes(x = pattern_fct, y = genome_name_fct, group = pattern_fct)) +
     geom_line(col = "grey") +
-    geom_point(size = 3, aes(col = genome_col)) +
-    scale_color_brewer(palette = "Paired", guide = "none") +
+    geom_point(size = 3, aes(col = !! genome_col)) +
+    color_scale +
     theme_bw() +
     theme_upset +
     theme(axis.text.y = element_text(face = if_else(tog$genomes$genome_bold, "bold", "plain")))
-
+  
   plot_marg <- 
-    tidypatterns$patterns %>% 
-    ggplot(aes(x = pattern_ordered, y = n)) +
+    tog$patterns %>% 
+    ggplot(aes(x = pattern_fct, y = n_orthogroups)) +
     geom_histogram(stat = "identity") +
     # geom_text(aes(label = n), vjust= - 0.25, size = 2) + 
-    ylim(c(0, 1.1 * max(tidypatterns$patterns$n))) +
+    ylim(c(0, 1.1 * max(tog$patterns$n_orthogroups))) +
     theme_bw() +
     theme_upset +
     theme(

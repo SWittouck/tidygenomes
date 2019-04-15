@@ -14,6 +14,7 @@ export(add_gff_files)
 export(add_genome_tibble)
 export(add_orthogroup_tibble)
 export(add_n_genomes_in_orthogroup)
+export(add_patterns)
 
 # export getters
 export(metaorthogroup_content_matrix)
@@ -24,7 +25,6 @@ export(genomes_n_loo_core_orthogroups)
 export(species_av_orthogroups)
 export(orthogroups_ordered)
 export(genomes_ordered)
-export(tidypatterns)
 
 # export processors
 export(process_new_orthogroup_names)

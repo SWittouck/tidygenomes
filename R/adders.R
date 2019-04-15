@@ -148,3 +148,35 @@ add_gff_files <- function(tog, gff_files) {
   tog
   
 }
+
+add_patterns <- function(tog) {
+
+  patterns_raw <-
+    tog$genes %>%
+    distinct(genome, orthogroup) %>%
+    mutate(present = TRUE) %>%
+    spread(key = genome, value = present, fill = FALSE) %>%
+    nest(orthogroup) %>%
+    mutate(pattern = str_c("p", 1:n()))
+  
+  orthogroups_patterns <-
+    patterns_raw %>%
+    unnest() %>%
+    select(orthogroup, pattern)
+  
+  tog$components <-
+    patterns_raw %>%
+    select(- data) %>%
+    gather(key = "genome", value = "present", - pattern) %>%
+    filter(present) %>%
+    select(- present)
+  
+  tog$patterns <- 
+    patterns_raw %>%
+    mutate(n_orthogroups = map_int(data, ~ length(.$orthogroup))) %>%
+    select(pattern, n_orthogroups)
+  
+  tog %>%
+    modify_at("orthogroups", left_join, orthogroups_patterns)
+  
+}

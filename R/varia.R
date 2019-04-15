@@ -3,15 +3,15 @@ expand_clade <- function(tree, tip_labels) {
   tip_labels <- 
     tip_labels %>%
     unique() %>%
-    keep(~ . %in% tree$tip.label) 
+    purrr::keep(~ . %in% tree$tip.label) 
   
   if (length(tip_labels) <= 1) return(tip_labels)
   
-  mrca <- phytools::findMRCA(tree, tip = tree$tip.label %in% tip_labels %>% which()) 
-  descendants <- phytools::getDescendants(tree, node = mrca) 
-  tree$tip.label[descendants] %>% 
-    na.omit() %>%
-    `attr<-`("na.action", NULL)
+  tip_labels %>%
+    phytools::findMRCA(tree = tree) %>%
+    phytools::getDescendants(tree = tree) %>%
+    {tree$tip.label[.]} %>%
+    purrr::discard(is.na)
   
 }
 

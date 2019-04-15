@@ -200,30 +200,3 @@ genomes_ordered_metaorthogroups <- function(tog) {
   genomes_ordered
   
 }
-
-tidypatterns <- function(tog) {
-  
-  patterns <- 
-    tog$genes %>%
-    distinct(genome, orthogroup) %>%
-    mutate(present = TRUE) %>%
-    spread(key = genome, value = present, fill = FALSE) %>%
-    group_by_at(vars(- orthogroup)) %>%
-    tally() %>%
-    ungroup() %>%
-    mutate(pattern = str_c("p", 1:n()))
-  
-  components <-
-    patterns %>%
-    select(- n) %>%
-    gather(key = "genome", value = "present", - pattern) %>%
-    filter(present) %>%
-    select(- present)
-  
-  patterns <-
-    patterns %>%
-    select(pattern, n)
-  
-  list(patterns = patterns, components = components)
-  
-}

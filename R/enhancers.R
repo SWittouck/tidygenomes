@@ -181,18 +181,21 @@ add_exclusivity <- function(tg, similarity) {
     rename(genome = genome_1, phylogroup = phylogroup_1) %>%
     group_by(genome, phylogroup) %>%
     group_map(function(df, groups) {
-      df1 <- 
-        filter(df, within) %>%
-        filter(similarity == min(similarity)) %>%
-        slice(1) %>%
-        select(min_similarity_within = similarity, furthest_within = genome_2)
-      if (nrow(df1) == 0) stop("Some genome has zero similarities within its phylogroup")
-      df2 <- 
-        filter(df, ! within) %>%
+      if (sum(df$within) == 0) {
+        df_within <- tibble(min_similarity_within = 1, furthest_within = groups$genome)
+      } else {
+        df_within <- df %>%
+          filter(within) %>%
+          filter(similarity == min(similarity)) %>%
+          slice(1) %>%
+          select(min_similarity_within = similarity, furthest_within = genome_2)
+      }
+      df_between <- df %>%
+        filter(! within) %>%
         filter(similarity == max(similarity)) %>%
         slice(1) %>%
         select(max_similarity_between = similarity, closest_between = genome_2)
-      bind_cols(df1, df2)
+      bind_cols(df_within, df_between)
     }) %>%
     ungroup() %>%
     mutate(
@@ -217,20 +220,6 @@ add_exclusivity <- function(tg, similarity) {
       max_similarity_between, closest_between,
       consensus_phylogroup_member
     )
-  
-  # min_similarity_within <- paste0("min_", similarity, "_within")
-  # max_similarity_between <- paste0("max_", similarity, "_between") 
-  # closest <- paste0("closest_", similarity)
-  # exclusive <- paste0("exclusive_", similarity)
-  # 
-  # phylogroups_excl <-
-  #   phylogroups_excl %>%
-  #   rename(
-  #     !! min_similarity_within := min_similarity_within,
-  #     !! max_similarity_between := max_similarity_between,
-  #     !! closest := closest,
-  #     !! exclusive := exclusive
-  #   )
   
   tg$genomes <- left_join(tg$genomes, genomes_membership, by = "genome")
   tg$phylogroups <- 

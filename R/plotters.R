@@ -14,7 +14,13 @@ ggtree_augmented <- function(tg, ...) {
   
   if (! is.null(tg$phylogroups)) {
     
-    tg <- tg %>% modify_at("nodes", left_join, tg$phylogroups)
+    tg <- tg %>% modify_at("nodes", left_join, tg$phylogroups, by = "phylogroup")
+    
+  }
+  
+  if (! is.null(tg$patterns)) {
+    
+    tg <- tg %>% modify_at("nodes", left_join, tg$patterns, by = "node")
     
   }
   

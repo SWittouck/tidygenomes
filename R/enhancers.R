@@ -129,12 +129,12 @@ add_phylogroup_measures <- function(tg) {
   
   phylogroups <-
     tg$genomes %>%
-    left_join(tg$nodes) %>%
+    left_join(tg$nodes, by = "node") %>%
     count(phylogroup) %>%
     rename(pg_genomes = n)
   
   tg %>%
-    modify_at("phylogroups", left_join, phylogroups)
+    modify_at("phylogroups", left_join, phylogroups, by = "phylogroup")
   
 }
 

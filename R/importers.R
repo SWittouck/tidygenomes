@@ -242,7 +242,10 @@ add_phylogroups <- function(tg, phylogroups, genome_identifier = genome) {
   tg$nodes <- 
     tg$nodes %>% 
     left_join(nodes_phylogroups, by = "node") %>%
-    mutate(is_phylogroup_ancestor = node %in% !! phylogroups$anc_node) %>%
+    mutate(is_phylogroup_ancestor = node %in% !! phylogroups$anc_node)
+  
+  tg$genomes <- 
+    tg$genomes %>%
     mutate(is_phylogroup_type = node %in% !! phylogroups$genome_type)
   
   tg$phylogroups <-

@@ -138,7 +138,6 @@ add_phylogroup_measures <- function(tg) {
   
 }
 
-
 #' Add exclusivity of phylogroups
 #'
 #' This function calculates the minimum similarity within phylogroups and the
@@ -228,3 +227,56 @@ add_exclusivity <- function(tg, similarity) {
   tg
   
 }
+
+#' Add color variable for phylogroups
+#'
+#' This function adds a variable phylogroup_color to the phylogroup table that
+#' can be used to plot phylogroup colors in cases where there are too many
+#' phylogroups for the color scale you want to use.
+#' 
+#' The variable phylogroup_color assigns a number to each phylogroup, in order
+#' of the ladderized tree. If there are more phylogroups than numbers, the
+#' numbers will be recycled. The goal is that two phylogroups that are directly
+#' next to each other in the tree labels will never have the same color.
+#'
+#' @param tg A tidygenomes object
+#' @param n The number of colors
+#' 
+#' @return A tidygenomes object
+#' 
+#' @export
+add_phylogroup_color <- function(tg, n = 12) {
+  
+  if (is.null(tg$phylogroups)) stop("No phylogroups present")
+  
+  n_phylogroups <- nrow(tg$phylogroups)
+  
+  tree <- ape::ladderize(tg$tree)
+  
+  tipnodes_ordered <-
+    tree$edge[, 2] %>%
+    {.[. <= length(tree$tip.label)]} %>%
+    {tree$tip.label[.]}
+  
+  phylogroups_ordered <-
+    tibble(node = tipnodes_ordered) %>%
+    left_join(tg$genomes, by = "node") %>%
+    filter(is_phylogroup_type) %>%
+    left_join(tg$nodes, by = "node") %>%
+    pull(phylogroup)
+
+  tg$phylogroups <-
+    tg$phylogroups %>%
+    mutate(
+      phylogroup_fct = factor(phylogroup, levels = !! phylogroups_ordered)
+    ) %>%
+    arrange(phylogroup_fct) %>%
+    mutate(
+      phylogroup_color = 
+        1:UQ(n) %>% as.character() %>% rep_len(!! n_phylogroups)
+    ) %>%
+    select(- phylogroup_fct)
+  
+  tg
+  
+} 

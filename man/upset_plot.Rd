@@ -6,7 +6,7 @@
 \usage{
 upset_plot(tg, genome_name, genome_col, genome_bold,
   color_scale = scale_color_brewer(palette = "Paired", guide = "none"),
-  n = 50)
+  n = 50, barchart_height = 50, frequency_labels = F)
 }
 \arguments{
 \item{tg}{A tidygenomes object}
@@ -24,6 +24,12 @@ phylogroup table that indicates which genome names should be in bold}
 function}
 
 \item{n}{The number of presence/absence patterns to plot}
+
+\item{barchart_height}{The relative height of the frequency barchart,
+expressed as a number of rows from the main plot}
+
+\item{frequency_labels}{Logical variable indicating whether the frequency
+numbers should be plotted as labels on top of the barchart}
 }
 \value{
 A ggplot object

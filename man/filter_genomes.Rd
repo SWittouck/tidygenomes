@@ -17,7 +17,8 @@ A tidygenomes object
 \description{
 This function applies \code{\link[dplyr:filter]{dplyr::filter()}} to the genomes table of a tidygenomes
 object and subsequently filters all other components of the tidygenomes
-object to retain only the requested genomes.
+object to retain only the requested genomes. It is also possible to filter on
+variables of the phylogroups table, if present.
 }
 \examples{
 genomes <- data.frame(genome = c("genome 1", "genome 2"))

@@ -256,3 +256,23 @@ add_phylogroups <- function(tg, phylogroups, genome_identifier = genome) {
   tg
   
 }
+
+#' Remove phylogroups from a tidygenomes object
+#'
+#' This function undoes the effects of the function [add_phylogroups()]
+#'
+#' @param tg A tidygenomes object
+#' 
+#' @return A tidygenomes object
+#' 
+#' @export
+remove_phylogroups <- function(tg) {
+  
+  tg$phylogroups <- NULL
+  tg$nodes$phylogroup <- NULL
+  tg$nodes$is_phylogroup_ancestor <- NULL
+  tg$genomes$is_phylogroup_type <- NULL
+  
+  tg
+  
+}

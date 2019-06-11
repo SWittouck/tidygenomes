@@ -58,6 +58,10 @@ genomes_extended <- function(tg) {
     tg$genomes <- tg$genomes %>% left_join(tg$nodes, by = "node")
   }
   
+  if(tibble::has_name(tg, "phylogroups")) {
+    tg$genomes <- tg$genomes %>% left_join(tg$phylogroups, by = "phylogroup")
+  }
+  
   tg$genomes
   
 }
@@ -70,5 +74,15 @@ complete_pairs <- function(pairs) {
     rename(genome_1 = genome_1_new, genome_2 = genome_2_new)
   
   bind_rows(pairs, pairs_2)
+  
+}
+
+tipnodes_ladderized <- function(tree) {
+  
+  tree <- ape::ladderize(tree)
+  
+  tree$edge[, 2] %>%
+  {.[. <= length(tree$tip.label)]} %>%
+  {tree$tip.label[.]}
   
 }

@@ -59,7 +59,7 @@ ggtree_augmented <- function(tg, ...) {
 #' 
 #' @export
 upset_plot <- function(
-    tg, genome_name, genome_col, genome_bold, 
+    tg, genome_name, genome_col = NULL, genome_bold = NULL, 
     color_scale = scale_color_brewer(palette = "Paired", guide = "none"), 
     n = 50,
     barchart_height = 50,
@@ -87,7 +87,7 @@ upset_plot <- function(
     mutate(genome_name_fct = factor(
       !! genome_name, levels = !! genome_name
     )) %>%
-    rename(genome_bold = !! genome_bold)
+    mutate(genome_bold = !! genome_bold)
   
   theme_upset <- 
     theme(
@@ -107,8 +107,14 @@ upset_plot <- function(
     geom_point(size = 3, aes(col = !! genome_col)) +
     color_scale +
     theme_bw() +
-    theme_upset +
-    theme(axis.text.y = element_text(face = if_else(genomes$genome_bold, "bold", "plain")))
+    theme_upset
+  
+  if (! is.null(genome_bold)) {
+    plot_main <- plot_main +
+      theme(axis.text.y = element_text(
+        face = if_else(genomes$genome_bold, "bold", "plain")
+      ))
+  }
   
   plot_marg <- 
     tg$patterns %>% 

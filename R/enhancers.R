@@ -251,15 +251,10 @@ add_phylogroup_color <- function(tg, n = 12) {
   
   n_phylogroups <- nrow(tg$phylogroups)
   
-  tree <- ape::ladderize(tg$tree)
-  
-  tipnodes_ordered <-
-    tree$edge[, 2] %>%
-    {.[. <= length(tree$tip.label)]} %>%
-    {tree$tip.label[.]}
+  tipnodes_ladderized <- tipnodes_ladderized(tg$tree)
   
   phylogroups_ordered <-
-    tibble(node = tipnodes_ordered) %>%
+    tibble(node = tipnodes_ladderized) %>%
     left_join(tg$genomes, by = "node") %>%
     filter(is_phylogroup_type) %>%
     left_join(tg$nodes, by = "node") %>%

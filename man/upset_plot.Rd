@@ -4,7 +4,7 @@
 \alias{upset_plot}
 \title{Construct an "upset plot" to explore gene presence/absence}
 \usage{
-upset_plot(tg, genome_name, genome_col, genome_bold,
+upset_plot(tg, genome_name, genome_col = NULL, genome_bold = NULL,
   color_scale = scale_color_brewer(palette = "Paired", guide = "none"),
   n = 50, barchart_height = 50, frequency_labels = F)
 }

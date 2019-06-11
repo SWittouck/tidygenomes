@@ -2,7 +2,8 @@
 #'
 #' This function applies [dplyr::filter()] to the genomes table of a tidygenomes
 #' object and subsequently filters all other components of the tidygenomes
-#' object to retain only the requested genomes.
+#' object to retain only the requested genomes. It is also possible to filter on
+#' variables of the phylogroups table, if present.
 #'
 #' @param tg A tidygenomes object
 #' @param ... Filtering expression to pass on to [dplyr::filter()]
@@ -21,7 +22,12 @@ filter_genomes <- function(tg, ...) {
     stop("Tidygenomes object contains patterns")
   }
   
-  tg$genomes <- filter(tg$genomes, ...)
+  genomes <-
+    genomes_extended(tg) %>%
+    filter(...) %>%
+    pull(genome)
+  
+  tg$genomes <- filter(tg$genomes, genome %in% !! genomes)
   
   if (! is.null(tg$genes)) {
     tg$genes <- filter(tg$genes, genome %in% tg$genomes$genome)

@@ -5,19 +5,8 @@
 # Naming of tibbles that might be returned: 
 # <what_do_the_rows_represent>_<information_in_extra_variables>
 
-# Returns the metaorthogroup content of all genomes in the form of a matrix.
-metaorthogroup_content_matrix <- function(tog) {
-  
-  tog$genes %>%
-    left_join(tog$orthogroups) %>%
-    count(genome, metaorthogroup) %>%
-    spread(key = metaorthogroup, value = n, fill = 0) %>%
-    `class<-`("data.frame") %>%
-    `rownames<-`(.$genome) %>%
-    select(- genome) %>%
-    as.matrix()
-  
-}
+# synonym to avoid devtools::load_all() freaking out
+metaorthogroup_content_matrix <- pangenome_matrix
 
 # Returns the orthogroup content of a all genomes of a species in the form of a
 # matrix.

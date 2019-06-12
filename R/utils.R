@@ -86,3 +86,21 @@ tipnodes_ladderized <- function(tree) {
   {tree$tip.label[.]}
   
 }
+
+# function to convert various data types to tibble
+as_tibble <- function(data) {
+  
+  if("dist" %in% class(data)) {
+    
+    n <- attr(data, "Size")
+    
+    expand.grid(i = 1:n, j = 1:n) %>%
+      filter(i < j) %>%
+      mutate(object_1 = labels(data)[i]) %>%
+      mutate(object_2 = labels(data)[j]) %>%
+      mutate(distance = data[n * (i - 1) - i * (i - 1) / 2 + j - i]) %>%
+      select(- i, - j)
+    
+  }
+  
+}

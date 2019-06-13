@@ -275,3 +275,31 @@ add_phylogroup_color <- function(tg, n = 12) {
   tg
   
 } 
+
+#' Add gene content distance
+#'
+#' This function adds a variable gcd (gene content distance) to the pair table.
+#' As the name suggests, these are distances between genomes based on shared
+#' gene content. Various types of distances can be computed; the function uses
+#' the vegan package for this.
+#'
+#' @param tg A tidygenomes object
+#' @param method See [vegan::vegdist()]
+#' @param binary See [vegan::vegdist()]
+#' 
+#' @return A tidygenomes object
+#' 
+#' @export
+add_gcd <- function(tg, method, binary) {
+  
+  pairs_gcd <-
+    tg %>%
+    pangenome_matrix() %>%
+    vegan::vegdist(method = method, binary = binary) %>%
+    as_tibble() %>%
+    rename(genome_2 = object_1, genome_1 = object_2, gcd = distance)
+  
+  tg %>%
+    modify_at("pairs", left_join, pairs_gcd, by = c("genome_1", "genome_2"))
+  
+}

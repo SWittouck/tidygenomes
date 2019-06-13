@@ -140,3 +140,45 @@ upset_plot <- function(
   )
   
 }
+
+#' Construct an heatmap to explore a pair variable
+#'
+#' This function constructs a heatmap of a given variable from the pair table.
+#' Genomes are ordered along the phylogeny.
+#'
+#' @param tg A tidygenomes object
+#' @param genome_label Variable (unquoted) from the genome table to use as
+#'   genome label
+#' @param distance Variable (unquoted) from the pair table to plot on the
+#'   heatmap
+#' 
+#' @return A ggplot object
+#' 
+#' @export
+heatmap <- function(tg, genome_label, distance) {
+  
+  genome_label <- rlang::enexpr(genome_label)
+  distance <- rlang::enexpr(distance)
+  
+  tg$genomes <-
+    tg$genomes %>%
+    mutate(genome_label = !! genome_label) %>%
+    mutate(node_fct = factor(node, levels = tipnodes_ladderized(tg$tree))) %>%
+    arrange(node_fct) %>%
+    mutate(genome_label_fct = factor(genome_label, levels = genome_label))
+  
+  tg$pairs %>%
+    complete_pairs() %>%
+    left_join(
+        tg$genomes %>% rename(genome_1 = genome), by = "genome_1"
+      ) %>%
+    left_join(
+      tg$genomes %>% rename(genome_2 = genome), by = "genome_2", 
+      suffix = c("_1", "_2")
+    ) %>%
+    mutate(distance = !! distance) %>%
+    ggplot(aes(x = genome_label_fct_1, y = genome_label_fct_2, fill = distance)) +
+    geom_tile() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  
+}

@@ -276,3 +276,76 @@ remove_phylogroups <- function(tg) {
   tg
   
 }
+
+#' Inflate one of the pangenomes of a metapangenome
+#'
+#' This function inflates one of the pangenomes of what you could call a
+#' "metapangenome": a pangenome where one or more individual genomes
+#' represent(s) the entire pangenome of one species. The orthogroups of this
+#' species are represented as individual genes in the metapangenome. This
+#' function will replace the single species to be inflated by the individual
+#' genomes of which is consists, and its "genes" with the complete species-level
+#' orthogroups.
+#'
+#' The genes in the metapangenome that belong to the genome (species) to be
+#' inflated should correspond to orthogroups in the species pangenome.
+#'
+#' @param tg_meta A tidygenomes object containing the metapangenome
+#' @param tg_species A tidgenomes object containing the species pangenome
+#' @param species The genome in the metapangenome that represents the species to
+#'   inflate
+#'
+#' @return A tidygenomes object
+#'
+#' @export
+inflate_pangenome <- function(tg_meta, tg_species, species) {
+  
+  if (! is.null(tg_meta$tree)) {
+    stop("Remove the tree from the metapangenome tidygenomes object")
+  }
+  
+  if (! is.null(tg_meta$phylogroups)) {
+    stop("Remove the phylogroups and tree from the metapangenome ", 
+         "tidygenomes object")
+  }
+  
+  if (! is.null(tg_meta$pairs)) {
+    stop("Remove the genome pairs from the metapangenome tidygenomes object")
+  }
+  
+  if (! all(tg_species$orthogroups$orthogroup %in% tg_meta$genes$gene)) {
+    stop("Make sure that all species orthogroup are present as genes in the ",
+         "metapangenome gene table")
+  }
+  
+  # split metapangenome gene table in genes to inflate and genes not to inflate
+  tg_meta$genes <-
+    tg_meta$genes %>%
+    mutate(split = if_else(genome == !! species, "inflate", "notinflate")) %>%
+    split(f = .$split)
+  
+  # use the metapangenomes genes to inflate to give new orthogroup names to the
+  # species genes
+  tg_meta$genes$inflate <- 
+    tg_meta$genes$inflate %>%
+    select(orthogroup, orthogroup_species = gene)
+  tg_species$genes <-
+    tg_species$genes %>%
+    rename(orthogroup_species = orthogroup) %>%
+    left_join(tg_meta$genes$inflate, by = "orthogroup_species") %>%
+    select(- orthogroup_species)
+  
+  # add the updated species genes to the metapangenome genes not to inflate
+  tg_meta$genes$inflate <- tg_species$genes 
+  tg_meta$genes$notinflate$split <- NULL
+  tg_meta$genes <- bind_rows(tg_meta$genes$inflate, tg_meta$genes$notinflate)
+  
+  # inflate the genome table 
+  tg_meta$genomes <-
+    tg_meta$genomes %>%
+    filter(genome != !! species) %>%
+    bind_rows(tg_species$genomes)
+  
+  tg_meta
+  
+}

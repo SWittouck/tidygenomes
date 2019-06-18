@@ -59,7 +59,7 @@ ggtree_augmented <- function(tg, ...) {
 #' 
 #' @export
 upset_plot <- function(
-    tg, genome_name, genome_col = NULL, genome_bold = NULL, 
+    tg, genome_name = genome, genome_col = NULL, genome_bold = NULL, 
     color_scale = scale_color_brewer(palette = "Paired", guide = "none"), 
     n = 50,
     barchart_height = 50,

@@ -156,7 +156,8 @@ add_tidygenomes <- function(tg, data) {
   tg$genomes <- tg$genomes %>% left_join(data$genomes, by = "genome")
   data$genomes <- NULL
   
-  c(tg, data)
+  c(tg, data) %>%
+    `class<-`("tidygenomes")
   
 }
 

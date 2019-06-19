@@ -85,3 +85,70 @@ filter_orthogroups <- function(tg, ...) {
     modify_at("genes", filter, orthogroup %in% .$orthogroups$orthogroup)
   
 }
+
+#' Update the names of the genomes
+#'
+#' This function updates the names of all genomes in all tables.
+#' 
+#' This function is deliberately not called "rename_genomes", because in the
+#' tidyverse naming framework that would suggest that the function renames
+#' variables in the genome table (which it doesn't do).
+#'
+#' @param tg A tidygenomes object
+#' @param new_name An expression that evaluates to unique names within the
+#'   genome table
+#' 
+#' @return A tidygenomes object
+#' 
+#' @export
+update_genomes <- function(tg, new_name) {
+  
+  new_name <- rlang::enexpr(new_name)
+  
+  lut_genomes <-
+    tg$genomes %>%
+    mutate(new_name = !! new_name) %>%
+    {structure(.$new_name, names = .$genome)}
+  
+  is_unique <- function(x) length(x) == length(unique(x))
+  
+  if (! is_unique(lut_genomes)) {
+    stop("the new genome names are not unique")
+  }
+  
+  tg$genomes <- tg$genomes %>% mutate(genome = !! new_name)
+  
+  if (! is.null(tg$genes)) {
+    tg$genes <- tg$genes %>% mutate(genome = lut_genomes[genome] %>% unname())
+  }
+  
+  if (! is.null(tg$pairs)) {
+    
+    tg$pairs <-
+      tg$pairs %>%
+      mutate(
+        genome_1 = lut_genomes[genome_1] %>% unname(),
+        genome_2 = lut_genomes[genome_2] %>% unname()
+      )
+    
+    for (row in 1:nrow(tg$pairs)) {
+      
+      genome_1 <- tg$pairs[row, "genome_1"]
+      genome_2 <- tg$pairs[row, "genome_2"]
+      
+      if (genome_1 < genome_2) {
+        tg$pairs[row, "genome_1"] <- genome_2
+        tg$pairs[row, "genome_2"] <- genome_1
+      }
+      
+    }
+    
+  }
+  
+  if (! is.null(tg$nodes)) {
+    
+  }
+  
+  tg
+  
+}

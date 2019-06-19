@@ -303,3 +303,59 @@ add_gcd <- function(tg, method, binary) {
     modify_at("pairs", left_join, pairs_gcd, by = c("genome_1", "genome_2"))
   
 }
+
+#' Collapse species pangenomes
+#'
+#' This function collapses each species to a single genome, and each orthogroup
+#' within a species to a single gene.
+#' 
+#' A variable "species" must be present in the genome table for this function to
+#' work.
+#' 
+#' A variable "status" will be added to the gene table, indicating for each gene
+#' whether the orthogroup that gene belongs to is core or accessory within the
+#' species.
+#'
+#' @param tg A tidygenomes object
+#' @param core_threshold The minimum percentage of genomes within a species
+#'   where a gene needs to be present to be considered a core gene
+#' 
+#' @return A tidygenomes object
+#' 
+#' @export
+collapse_species <- function(tg, core_threshold = 0.9) {
+  
+  if (! is.null(tg$tree) | ! is.null(tg$pairs)) {
+    stop("Remove the tree and/or genome pairs before collapsing species")
+  }
+  
+  if (is.null(tg$genomes$species)) {
+    stop("Add a variable 'species' to the genome table")
+  }
+  
+  genomes <-
+    tg$genomes %>%
+    add_count(species) %>%
+    rename(sp_genomes = n)
+  
+  tg$genes <-
+    tg$genes %>%
+    left_join(genomes, by = "genome") %>%
+    distinct(orthogroup, genome, species, sp_genomes) %>%
+    group_by(orthogroup, species) %>%
+    summarize(status = if_else(
+      n() >= sp_genomes[1] * !! core_threshold,
+      "core", "accessory"
+    )) %>%
+    ungroup() %>%
+    rename(genome = species) %>%
+    mutate(gene = as.character(1:n()))
+  
+  tg$genomes <-
+    genomes %>%
+    select(genome = species, sp_genomes) %>%
+    distinct(genome, sp_genomes)
+  
+  tg
+  
+}

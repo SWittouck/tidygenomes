@@ -1,6 +1,3 @@
-# These functions will add secondary variables to the genomes table of a tog
-# object.
-
 # Returns tog object, with added to the genomes table the first and second
 # components of a PCoA on orthogroup content.
 add_pcoa <- function(tog) {

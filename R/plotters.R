@@ -179,6 +179,6 @@ heatmap <- function(tg, genome_label, distance) {
     mutate(distance = !! distance) %>%
     ggplot(aes(x = genome_label_fct_1, y = genome_label_fct_2, fill = distance)) +
     geom_tile() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))
-  
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
 }

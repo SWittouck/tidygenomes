@@ -155,7 +155,7 @@ upset_plot <- function(
 #' @return A ggplot object
 #' 
 #' @export
-heatmap <- function(tg, genome_label, distance) {
+heatmap <- function(tg, genome_label, distance, complete_pairs = T) {
   
   genome_label <- rlang::enexpr(genome_label)
   distance <- rlang::enexpr(distance)
@@ -168,7 +168,7 @@ heatmap <- function(tg, genome_label, distance) {
     mutate(genome_label_fct = factor(genome_label, levels = genome_label))
   
   tg$pairs %>%
-    complete_pairs() %>%
+    {if (complete_pairs) complete_pairs(.) else .} %>%
     left_join(
         tg$genomes %>% rename(genome_1 = genome), by = "genome_1"
       ) %>%

@@ -1,6 +1,6 @@
 Package: tidygenomes
 Title: A Grammar of Genome Data Manipulation
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: c(person("Stijn", "Wittouck", email = "stijn.wittouck@uantwerpen.be", role = c("aut", "cre"))) 
 Description: A toolkit for the organization and visualization of genome data, including pangenomes and phylogenetic trees.
 Depends: R (>= 3.4.1)

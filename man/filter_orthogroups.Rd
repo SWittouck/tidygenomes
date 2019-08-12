@@ -4,12 +4,12 @@
 \alias{filter_orthogroups}
 \title{Filter the orthogroups of a tidygenomes object}
 \usage{
-filter_orthogroups(tog, ...)
+filter_orthogroups(tg, ...)
 }
 \arguments{
-\item{...}{Filtering expression to pass on to \code{\link[dplyr:filter]{dplyr::filter()}}}
-
 \item{tg}{A tidygenomes object}
+
+\item{...}{Filtering expression to pass on to \code{\link[dplyr:filter]{dplyr::filter()}}}
 }
 \value{
 A tidygenomes object
@@ -17,5 +17,6 @@ A tidygenomes object
 \description{
 This function applies \code{\link[dplyr:filter]{dplyr::filter()}} to the orthogroups table of a
 tidygenomes object and subsequently filters other components of the
-tidygenomes object to retain only the requested orthogroups.
+tidygenomes object to retain only the requested orthogroups. This function
+will not remove genomes that have zero genes left after orthogroup filtering.
 }

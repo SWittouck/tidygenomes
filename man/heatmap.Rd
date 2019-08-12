@@ -4,7 +4,7 @@
 \alias{heatmap}
 \title{Construct an heatmap to explore a pair variable}
 \usage{
-heatmap(tg, genome_label, distance)
+heatmap(tg, genome_label, distance, complete_pairs = T)
 }
 \arguments{
 \item{tg}{A tidygenomes object}

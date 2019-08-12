@@ -70,7 +70,8 @@ filter_genomes <- function(tg, ...) {
 #'
 #' This function applies [dplyr::filter()] to the orthogroups table of a
 #' tidygenomes object and subsequently filters other components of the
-#' tidygenomes object to retain only the requested orthogroups.
+#' tidygenomes object to retain only the requested orthogroups. This function
+#' will not remove genomes that have zero genes left after orthogroup filtering.
 #'
 #' @param tg A tidygenomes object
 #' @param ... Filtering expression to pass on to [dplyr::filter()]

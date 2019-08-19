@@ -186,15 +186,18 @@ add_genome_metadata <- function(tg, genome_metadata, by = "genome") {
 #' Phylogroups are defined as clades in a phylogenetic tree. This function will
 #' add user-defined phylogroups to a tidygenomes object containing a tree.
 #' 
-#' The phylogroups table should consist of one row per phylogroup and should
+#' The phylogroup table should consist of one row per phylogroup and should
 #' contain the following variables:
 #' 
 #' * phylogroup: the name of the phylogroup
 #' * genome_type: the type genome of the phylogroup
-#' * genome_peripheral: a peripheral genome of the phylogroup
+#' * genome_peripheral: a peripheral genome of the phylogroup (optional)
 #' 
-#' A phylogroup is then defined as the most recent common ancestor of the type
-#' and peripheral genomes in the tree, along with all its descendants.
+#' If peripheral genomes are supplied, a phylogroup is defined as all
+#' descendants of the most recent common ancestor of the type and peripheral
+#' genomes. If peripheral genomes are not supplied, a phylogroup is defined as
+#' all descendants of the oldest ancestor of the type genome that is not also an
+#' ancestor of any other type genomes. 
 #' 
 #' The following will be added to the tidygenomes object:
 #' 
@@ -214,45 +217,118 @@ add_phylogroups <- function(tg, phylogroups, genome_identifier = genome) {
   
   genome_identifier <- rlang::enexpr(genome_identifier)
   
+  # convert genome identifiers to node names
   lut_nodes <-
     tg$genomes %>%
     mutate(genome_identifier = !! genome_identifier) %>%
     {structure(.$node, names = (.$genome_identifier))}
-  
   phylogroups <- 
-    phylogroups %>%
-    mutate(genome_type = lut_nodes[genome_type]) %>%
-    mutate(genome_peripheral = lut_nodes[genome_peripheral]) %>%
-    mutate(anc_node = map2_chr(
-      genome_type, genome_peripheral, 
-      ~ mrca(c(.x, .y), tree = tg$tree)
-    ))
+    phylogroups %>% mutate(genome_type = unname(lut_nodes[genome_type])) 
   
-  nodes_phylogroups <-
-    phylogroups %>%
-    mutate(node = map(anc_node, ~ descendants(., tree = tg$tree))) %>%
-    unnest(node) %>%
-    select(node, phylogroup)
+  # determine the phylogroup of all nodes and whether they are ancestral nodes
+  # of phylogroups
+  if ("genome_peripheral" %in% names(phylogroups)) {
+    
+    # situation 1: phylogroups defined by type and peripheral genomes
+    
+    phylogroups <- 
+      phylogroups %>% 
+      mutate(genome_peripheral = unname(lut_nodes[genome_peripheral]))
+    nodes_phylogroups <-
+      phylogroups %>%
+      mutate(anc_node = map2_chr(
+        genome_type, genome_peripheral, 
+        ~ mrca(c(.x, .y), tree = tg$tree)
+      )) %>%
+      mutate(node = map(anc_node, ~ descendants(., tree = tg$tree))) %>%
+      unnest(node) %>%
+      mutate(is_phylogroup_ancestor = node == anc_node) %>%
+      select(node, phylogroup, is_phylogroup_ancestor)
+    
+    phylogroups <- phylogroups %>% select(- genome_peripheral)
+    
+  } else {
+    
+    # situation 2: phylogroups defined by types only 
+    
+    # put known phylogroups in numeric vector, where numbers represent node
+    # numbers
+    nodes_phylogroups <- 
+      tg$nodes %>%
+      left_join(phylogroups, by = c("node" = "genome_type")) %>%
+      right_join(
+        tibble(node = c(tg$tree$tip.label, tg$tree$node.label)),
+        by = "node"
+      ) %>%
+      pull(phylogroup)
+    
+    # initialize empty vector with node numbers of phylogroup ancestors
+    ancestral_nodes <- numeric()
+    
+    # children-first traversal: infer phylogroups from children
+    tree <- tg$tree %>% ape::reorder.phylo("postorder") 
+    parents <- unique(tree$edge[, 1])
+    for (parent in parents) {
+      children <- tree$edge[tree$edge[, 1] == parent, 2]
+      children_phylogroup <- 
+        nodes_phylogroups[children] %>%
+        {.[! is.na(.)]}
+      if (length(children_phylogroup) == 1) {
+        nodes_phylogroups[parent] <- children_phylogroup
+      } else if (length(children_phylogroup) == 2) {
+        nodes_phylogroups[parent] <- "no phylogroup"
+        ancestral_nodes <- c(ancestral_nodes, children)
+      }
+    }
+    
+    # remove ancestral nodes with the label "no phylogroup"
+    ancestral_nodes <- 
+      ancestral_nodes[nodes_phylogroups[ancestral_nodes] != "no phylogroup"]
+    
+    # parents-first traversal: infer phylogroups from parents
+    root <- tree$edge[nrow(tree$edge), 1]
+    nodes_phylogroups[root] <- "no phylogroup"
+    for (child_row in nrow(tree$edge):1) {
+      child <- tree$edge[child_row, 2]
+      if (is.na(nodes_phylogroups[child])) {
+        parent <- tree$edge[child_row, 1]
+        nodes_phylogroups[child] <- nodes_phylogroups[parent]
+      }
+    }
+    
+    # make node table with their phylogroups
+    nodes_phylogroups <-
+      tibble(
+        node_number = 1:length(nodes_phylogroups), 
+        phylogroup = nodes_phylogroups
+      ) %>%
+      mutate(
+        node = c(tree$tip.label, tree$node.label)[node_number],
+        is_phylogroup_ancestor = node_number %in% ancestral_nodes
+      ) %>%
+      select(- node_number)
+    
+  }
   
+  # stop if nodes are not unique (phylogroups overlap)
   is_unique <- function(x) length(unique(x)) == length(x)
-  
   if (! is_unique(nodes_phylogroups$node)) {
     stop("Phylogroups overlap")
   } 
   
+  # add phylogroups to node table
   tg$nodes <- 
     tg$nodes %>% 
     left_join(nodes_phylogroups, by = "node") %>%
-    replace_na(list(phylogroup = "no phylogroup")) %>%
-    mutate(is_phylogroup_ancestor = node %in% !! phylogroups$anc_node)
+    replace_na(list(phylogroup = "no phylogroup"))
   
+  # add to genome table whether genomes are type of a phylogroup
   tg$genomes <- 
     tg$genomes %>%
     mutate(is_phylogroup_type = node %in% !! phylogroups$genome_type)
   
-  tg$phylogroups <-
-    phylogroups %>%
-    select(- genome_type, - genome_peripheral, - anc_node)
+  # add the phylogroup table
+  tg$phylogroups <- phylogroups %>% select(- genome_type)
   
   tg
   

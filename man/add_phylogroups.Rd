@@ -22,16 +22,19 @@ Phylogroups are defined as clades in a phylogenetic tree. This function will
 add user-defined phylogroups to a tidygenomes object containing a tree.
 }
 \details{
-The phylogroups table should consist of one row per phylogroup and should
+The phylogroup table should consist of one row per phylogroup and should
 contain the following variables:
 \itemize{
 \item phylogroup: the name of the phylogroup
 \item genome_type: the type genome of the phylogroup
-\item genome_peripheral: a peripheral genome of the phylogroup
+\item genome_peripheral: a peripheral genome of the phylogroup (optional)
 }
 
-A phylogroup is then defined as the most recent common ancestor of the type
-and peripheral genomes in the tree, along with all its descendants.
+If peripheral genomes are supplied, a phylogroup is defined as all
+descendants of the most recent common ancestor of the type and peripheral
+genomes. If peripheral genomes are not supplied, a phylogroup is defined as
+all descendants of the oldest ancestor of the type genome that is not also an
+ancestor of any other type genomes.
 
 The following will be added to the tidygenomes object:
 \itemize{

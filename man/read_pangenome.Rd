@@ -18,9 +18,9 @@ tools such as OrthoFinder, and returns a genes tibble with the genome and
 orthogroup of each gene.
 }
 \details{
-The \code{path} can currently only be an OrthoFinder Results folder. In the
-future, this can be extended to output folders or file from other pangenome
-tools.
+The \code{path} can currently only be an OrthoFinder Orthogroups folder (for
+OrthoFinder >= v2.3.1), or Results folder (older versions). In the future,
+this can be extended to output folders or files from other pangenome tools.
 }
 \examples{
 \dontrun{

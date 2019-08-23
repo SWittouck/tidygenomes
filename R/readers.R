@@ -4,9 +4,9 @@
 #' tools such as OrthoFinder, and returns a genes tibble with the genome and
 #' orthogroup of each gene.
 #' 
-#' The `path` can currently only be an OrthoFinder Results folder. In the
-#' future, this can be extended to output folders or file from other pangenome
-#' tools.
+#' The `path` can currently only be an OrthoFinder Orthogroups folder (for
+#' OrthoFinder >= v2.3.1), or Results folder (older versions). In the future,
+#' this can be extended to output folders or files from other pangenome tools.
 #'
 #' @param path Path to a file or folder containing the pangenome
 #' 
@@ -20,8 +20,12 @@
 #' @export
 read_pangenome <- function(path) {
   
-  path_orthogroups <- paste0(path, "/Orthogroups.csv")
-  path_unassigned <- paste0(path, "/Orthogroups_UnassignedGenes.csv")
+  path_orthogroups <- 
+    paste0(path, "/Orthogroups.?sv") %>% 
+    Sys.glob()
+  path_unassigned <- 
+    paste0(path, "/Orthogroups_UnassignedGenes.?sv") %>% 
+    Sys.glob()
   
   if (file.exists(path_orthogroups) & file.exists(path_unassigned)) {
     message("OrthoFinder pagenome files detected")
@@ -32,14 +36,14 @@ read_pangenome <- function(path) {
   genes_assigned <- 
     path_orthogroups %>%
     readr::read_tsv(col_names = T, col_types = cols(.default = "c")) %>%
-    rename(orthogroup = X1) %>%
+    rename(orthogroup = 1) %>%
     gather(key = "genome", value = "gene", na.rm = T, - orthogroup) %>%
     separate_rows(gene, sep = ", ")
   
   genes_unassigned <- 
     path_unassigned %>%
     readr::read_tsv(col_names = T, col_types = cols(.default = "c")) %>%
-    rename(orthogroup = X1) %>%
+    rename(orthogroup = 1) %>%
     gather(key = "genome", value = "gene", na.rm = T, - orthogroup)
   
   genes <- bind_rows(genes_assigned, genes_unassigned)

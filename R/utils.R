@@ -1,3 +1,31 @@
+#' Add a branch to the root of the tree
+#' 
+#' This function adds a branch to the root of the tree, adding one extra node in
+#' the process.
+#' 
+#' @param tree A phylogeny of class `phylo`, with edge lengths
+#' @param branch_length The length of the root branch
+#' 
+#' @return An object of class `phylo`
+#' 
+#' @example 
+#' tree <- ape::read.tree(text = "(a:1, b:1);")
+#' tree <- add_rootbranch(tree)
+#' plot(tree)
+#' 
+#' @export
+add_rootbranch <- function(tree, branch_length = 1) {
+  
+  n_tips <- length(tree$tip.label)
+  tree$edge[tree$edge > n_tips] <- tree$edge[tree$edge > n_tips] + 1
+  tree$edge <- rbind(c(n_tips + 1, n_tips + 2), tree$edge)
+  tree$edge.length <- c(branch_length, tree$edge.length)
+  tree$Nnode <- tree$Nnode + 1
+  
+  tree
+  
+}
+
 mrca <- function(tips, tree) {
   
   tips <- 

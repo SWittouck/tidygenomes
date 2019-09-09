@@ -5,6 +5,7 @@ Authors@R: c(person("Stijn", "Wittouck", email = "stijn.wittouck@uantwerpen.be",
 Description: A toolkit for the organization and visualization of genome data, including pangenomes and phylogenetic trees.
 Depends: R (>= 3.4.1)
 License: GPL-3
+URL: https://github.com/SWittouck/tidygenomes
 Encoding: UTF-8
 LazyData: true
 Imports:

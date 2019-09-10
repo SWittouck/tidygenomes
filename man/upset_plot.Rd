@@ -6,8 +6,8 @@
 \usage{
 upset_plot(tg, genome_name = genome, genome_col = NULL,
   genome_bold = NULL, color_scale = scale_color_brewer(palette =
-  "Paired", guide = "none"), n = 50, barchart_height = 50,
-  frequency_labels = F)
+  "Paired", guide = "none"), n = 50, freq_min = NULL,
+  barchart_height = 50, frequency_labels = F, phylogroups = F)
 }
 \arguments{
 \item{tg}{A tidygenomes object}

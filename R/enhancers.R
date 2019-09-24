@@ -179,7 +179,7 @@ add_exclusivity <- function(tg, similarity) {
     genome_pairs_full %>%
     rename(genome = genome_1, phylogroup = phylogroup_1) %>%
     group_by(genome, phylogroup) %>%
-    group_map(function(df, groups) {
+    group_modify(function(df, groups) {
       if (sum(df$within) == 0) {
         df_within <- tibble(min_similarity_within = 1, furthest_within = groups$genome)
       } else {

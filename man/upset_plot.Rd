@@ -4,10 +4,18 @@
 \alias{upset_plot}
 \title{Construct an "upset plot" to explore gene presence/absence}
 \usage{
-upset_plot(tg, genome_name = genome, genome_col = NULL,
-  genome_bold = NULL, color_scale = scale_color_brewer(palette =
-  "Paired", guide = "none"), n = 50, freq_min = NULL,
-  barchart_height = 50, frequency_labels = F, phylogroups = F)
+upset_plot(
+  tg,
+  genome_name = genome,
+  genome_col = NULL,
+  genome_bold = NULL,
+  color_scale = scale_color_brewer(palette = "Paired", guide = "none"),
+  n = 50,
+  freq_min = NULL,
+  barchart_height = 50,
+  frequency_labels = F,
+  phylogroups = F
+)
 }
 \arguments{
 \item{tg}{A tidygenomes object}
@@ -26,11 +34,15 @@ function}
 
 \item{n}{The number of presence/absence patterns to plot}
 
+\item{freq_min}{The minimum frequency of patterns to appear on the plot}
+
 \item{barchart_height}{The relative height of the frequency barchart,
 expressed as a number of rows from the main plot}
 
 \item{frequency_labels}{Logical variable indicating whether the frequency
 numbers should be plotted as labels on top of the barchart}
+
+\item{phylogroups}{Should horizontal lines be plotted between phylogroups?}
 }
 \value{
 A ggplot object

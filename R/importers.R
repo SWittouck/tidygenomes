@@ -426,3 +426,32 @@ inflate_pangenome <- function(tg_meta, tg_species, species) {
   tg_meta
   
 }
+
+#' Prepare tidygenomes object
+#'
+#' This function prepares a tidygenomes object from a genome table, a
+#' phylogenetic tree and a root location in the tree.
+#' 
+#' @param genomes A genome table with a column `genome`
+#' @param tree An object of class phylo with tips corresponding to genomes
+#' @param root Three tips that identify the root (see [root_tree.phylo])
+#' 
+#' @return A tidygenomes object
+#' 
+#' @export
+prepare_tidygenomes <- function(
+  genomes, pangenome = NULL, tree = NULL, phylogroups = NULL, root = NULL, 
+  genome_identifier = genome
+) {
+  
+  gi <- rlang::enexpr(genome_identifier)
+  
+  as_tidygenomes(genomes) %>%
+  {if (! is.null(pangenome)) add_tidygenomes(., pangenome) else .} %>%
+  {if (! is.null(tree)) add_tidygenomes(., tree) else .} %>%
+  {if (! is.null(root)) root_tree(., root, !! gi) else .} %>%
+  {
+    if (! is.null(phylogroups)) add_phylogroups(., phylogroups, !! gi) else .
+  }
+  
+}

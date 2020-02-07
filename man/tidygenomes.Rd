@@ -3,7 +3,6 @@
 \docType{package}
 \name{tidygenomes}
 \alias{tidygenomes}
-\alias{tidygenomes-package}
 \title{tidygenomes: A Grammar of Genome Data Manipulation}
 \description{
 tidygenomes: A Grammar of Genome Data Manipulation

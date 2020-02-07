@@ -1,3 +1,88 @@
+#' Root tree given three tips
+#'
+#' This function roots a phylogenetic tree given three tip labels.
+#'
+#' Tips a, b and c define exactly one internal node in the unrooted tree. The
+#' tree will be rooted on the branch leading from this node to tip a.
+#' 
+#' @param tree An object of class phylo
+#' @param tips Three tip labels 
+#' 
+#' @return An object of class phylo
+#' 
+#' @export
+root_tree.phylo <- function(tree, tips) {
+  
+  if (! "phylo" %in% class(tree)) {
+    stop("tree should be of class phylo")
+  }
+  
+  # root on node defined by tips
+  root_new <- 
+    ape::mrca(tree) %>%
+    {.[tips, tips]} %>%
+    {.[. > length(tree$tip.label)]} %>%
+    {.[. == max(.)]} %>%
+    {.[1]}
+  tree <- tree %>% ape::root.phylo(node = root_new)
+  
+  # resolve root node such that first tip is (part of) outgroup
+  outgroup <-
+    ape::mrca(tree) %>%
+    {.[tips[1], ]} %>%
+    {.[. != length(tree$tip.label) + 1]} %>%
+    names()
+  tree <- tree %>% ape::root.phylo(outgroup = outgroup, resolve.root = T)
+  
+  # divide root branch length
+  if ("edge.length" %in% names(tree)) {
+    n_tips <- length(tree$tip.label) 
+    l <- sum(tree$edge.length[tree$edge[, 1] == n_tips + 1])
+    tree$edge.length[tree$edge[, 1] == n_tips + 1] <- l / 2
+  }
+  
+  # return tree
+  tree
+  
+}
+
+#' Root tree given three genomes
+#'
+#' This applies [root_tree.phylo] to the tree component of a tidygenomes object.
+#' 
+#' @param tg An tidygenomes object
+#' @param root Three tips that identify the root (see [root_tree.phylo])
+#' @param genome_identifier Variable of the genome table that corresponds to the
+#'   given genomes
+#' 
+#' @return A tidygenomes object
+#' 
+#' @export
+root_tree <- function(tg, root, genome_identifier = genome) {
+  
+  if (! "tree" %in% names(tg)) {
+    stop("Tg should contain a tree")
+  }
+  
+  genome_identifier <- rlang::enexpr(genome_identifier)
+  
+  tips <-
+    tg$genomes %>%
+    mutate(genome_identifier = !! genome_identifier) %>%
+    filter(genome_identifier %in% !! root) %>%
+    left_join(tg$nodes, by = "node") %>%
+    pull(node) 
+  
+  if (! length(tips) == 3) {
+    stop("Not all nodes were found")
+  }
+  
+  tg$tree <- tg$tree %>% root_tree.phylo(tips) 
+  
+  tg
+  
+}
+
 #' Add a branch to the root of the tree
 #' 
 #' This function adds a branch to the root of the tree, adding one extra node in

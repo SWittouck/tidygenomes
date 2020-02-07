@@ -1,3 +1,29 @@
+#' Complement the pairs of a pair table
+#'
+#' For each unique pair of objects (a, b), the function adds a row for the pair
+#' (b, a) with the same information.
+#' 
+#' @param pairs Data frame where each row represents a pair of objects
+#' @param object_1 Variable defining the first object (unquoted)
+#' @param object_2 Variable defining the second object (unquoted)
+#' 
+#' @return A complemented table
+#' 
+#' @export
+complete_pairs <- function(pairs, object_1, object_2) {
+  
+  object_1 <- rlang::enexpr(object_1)
+  object_2 <- rlang::enexpr(object_2)
+  
+  pairs_2 <-
+    pairs %>%
+    rename(object_1_new = !! object_2, object_2_new = !! object_1) %>%
+    rename(!! object_1 := object_1_new, !! object_2 := object_2_new)
+  
+  bind_rows(pairs, pairs_2)
+  
+}
+
 #' Root tree given three tips
 #'
 #' This function roots a phylogenetic tree given three tip labels.
@@ -176,17 +202,6 @@ genomes_extended <- function(tg) {
   }
   
   tg$genomes
-  
-}
-
-complete_pairs <- function(pairs) {
-  
-  pairs_2 <-
-    pairs %>%
-    rename(genome_1_new = genome_2, genome_2_new = genome_1) %>%
-    rename(genome_1 = genome_1_new, genome_2 = genome_2_new)
-  
-  bind_rows(pairs, pairs_2)
   
 }
 

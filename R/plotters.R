@@ -190,7 +190,7 @@ heatmap <- function(tg, genome_label, distance, complete_pairs = T) {
     mutate(genome_label_fct = factor(genome_label, levels = genome_label))
   
   tg$pairs %>%
-    {if (complete_pairs) complete_pairs(.) else .} %>%
+    {if (complete_pairs) complete_pairs(., genome_1, genome_2) else .} %>%
     left_join(
         tg$genomes %>% rename(genome_1 = genome), by = "genome_1"
       ) %>%

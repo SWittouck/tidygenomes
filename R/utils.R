@@ -92,12 +92,12 @@ root_tree <- function(tg, root, genome_identifier = genome) {
   
   genome_identifier <- rlang::enexpr(genome_identifier)
   
-  tips <-
+  genome_to_node <-
     tg$genomes %>%
     mutate(genome_identifier = !! genome_identifier) %>%
-    filter(genome_identifier %in% !! root) %>%
-    left_join(tg$nodes, by = "node") %>%
-    pull(node) 
+    {structure(.$node, names = .$genome_identifier)}
+  
+  tips <- genome_to_node[root]
   
   if (! length(tips) == 3) {
     stop("Not all nodes were found")

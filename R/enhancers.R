@@ -163,7 +163,7 @@ add_exclusivity <- function(tg, similarity) {
     select(genome, phylogroup)
   
   genome_pairs_full <- 
-    complete_pairs(tg$pairs) %>%
+    complete_pairs(tg$pairs, object_1 = genome_1, object_2 = genome_2) %>%
     left_join(
       genomes %>% select(genome_1 = genome, phylogroup_1 = phylogroup),
       by = "genome_1"

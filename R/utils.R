@@ -31,6 +31,10 @@ complete_pairs <- function(pairs, object_1, object_2) {
 #' Tips a, b and c define exactly one internal node in the unrooted tree. The
 #' tree will be rooted on the branch leading from this node to tip a.
 #' 
+#' The branch labels (e.g. support values) are handled correctly, i.e. moved to
+#' the correct nodes. When the tree is rooted on a non-tip branch, its branch
+#' label will be copied to both child notes of the root node.
+#' 
 #' @param tree An object of class phylo
 #' @param tips Three tip labels 
 #' 
@@ -50,7 +54,7 @@ root_tree.phylo <- function(tree, tips) {
     {.[. > length(tree$tip.label)]} %>%
     {.[. == max(.)]} %>%
     {.[1]}
-  tree <- tree %>% ape::root.phylo(node = root_new)
+  tree <- tree %>% ape::root.phylo(node = root_new, edgelabel = T)
   
   # resolve root node such that first tip is (part of) outgroup
   outgroup <-
@@ -58,13 +62,25 @@ root_tree.phylo <- function(tree, tips) {
     {.[tips[1], ]} %>%
     {.[. != length(tree$tip.label) + 1]} %>%
     names()
-  tree <- tree %>% ape::root.phylo(outgroup = outgroup, resolve.root = T)
+  tree <- 
+    tree %>% 
+    ape::root.phylo(outgroup = outgroup, edgelabel = T, resolve.root = T)
   
   # divide root branch length
   if ("edge.length" %in% names(tree)) {
     n_tips <- length(tree$tip.label) 
     l <- sum(tree$edge.length[tree$edge[, 1] == n_tips + 1])
     tree$edge.length[tree$edge[, 1] == n_tips + 1] <- l / 2
+  }
+  
+  # copy the branch support of one rootchild to the other
+  # except when one of them is a tip! 
+  # (phangorn midpoint rooting also copies the support value of the rootchilds)
+  n_tips <- length(tree$tip.label)
+  children <- tree %>% {.$edge[.$edge[, 1] == n_tips + 1, 2]}
+  if (all(children > n_tips)) {
+    label <- c(tree$tip.label, tree$node.label)[children] %>% keep(~ . != "")
+    tree$node.label[children - n_tips] <- label
   }
   
   # return tree

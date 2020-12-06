@@ -24,6 +24,92 @@ complete_pairs <- function(pairs, object_1, object_2) {
   
 }
 
+#' Convert dist object to pair table
+#'
+#' This functions converts an object of the class "dist" to a tidy table with
+#' the columns object_1, object_2 and distance.
+#' 
+#' @param dist An object of the class "dist"
+#' 
+#' @return A tibble
+#' 
+#' @export
+dist2pairs <- function(dist) {
+  
+  if (! "dist" %in% class(dist)) stop("data is not a dist object")
+  
+  n <- attr(dist, "Size")
+  
+  expand.grid(i = 1:n, j = 1:n) %>%
+    filter(i < j) %>%
+    mutate(object_1 = labels(dist)[i]) %>%
+    mutate(object_2 = labels(dist)[j]) %>%
+    mutate(distance = dist[n * (i - 1) - i * (i - 1) / 2 + j - i]) %>%
+    select(- i, - j)
+  
+}
+
+#' Convert pair table to matrix
+#'
+#' This functions converts a data frame where each row is a unique pairwise
+#' comparison to a (dis)similarity matrix.
+#' 
+#' @param pairs A table with pairwise comparisons
+#' @param object_1 Name of the variable specifying the first object of the pair
+#' @param object_2 Name of the variable specifying the second object of the pair
+#' @param measure Name of the (dis)similarity variable
+#' @param diag Something to fill the diagonal with
+#' 
+#' @return A matrix
+#' 
+#' @export
+pairs2matrix <- 
+  function(pairs, object_1 = object_1, object_2 = object_2, measure, diag) {
+    
+    object_1 <- rlang::enquo(object_1)
+    object_2 <- rlang::enquo(object_2)
+    measure <- rlang::enquo(measure)
+    
+    pairs %>%
+      transmute(
+        object_1 = {{object_1}}, object_2 = {{object_2}}, measure = {{measure}}
+      ) %>% 
+      complete_pairs(object_1, object_2) %>%
+      pivot_wider(names_from = object_2, values_from = measure) %>%
+      `class<-`("data.frame") %>%
+      `rownames<-`(.$object_1) %>%
+      select(- object_1) %>%
+      as.matrix() %>%
+      {.[rownames(.), rownames(.)]} %>%
+      `diag<-`(diag)
+    
+  }
+
+#' Fix the pair order of a genome pair table
+#'
+#' For each row in a genome pair table (table with at least the columns genome_1
+#' and genome_2), this function assesses whether genome_1 < genome_2. If not, it
+#' swaps the values for genome_1 and genome_2, as well as for other variables
+#' whose names end in "_1" and "_2".
+#' 
+#' @param pairs A table with at least the variables genome_1 and genome_2
+#' 
+#' @return A tibble
+#' 
+#' @export
+fix_pair_order <- function(pairs) {
+  
+  namechange1 <- c("_1" = "_1prev", "_2" = "_2prev")
+  namechange2 <- c("_1prev" = "_2", "_2prev" = "_1")
+  bind_rows(
+    pairs[pairs$genome_1 <= pairs$genome_2, ],
+    pairs[pairs$genome_1 > pairs$genome_2, ] %>%
+      rename_with(~ stringr::str_replace_all(., namechange1)) %>%
+      rename_with(~ stringr::str_replace_all(., namechange2))
+  )
+  
+}
+
 #' Root tree given three tips
 #'
 #' This function roots a phylogenetic tree given three tip labels.
@@ -228,23 +314,5 @@ tipnodes_ladderized <- function(tree) {
   tree$edge[, 2] %>%
   {.[. <= length(tree$tip.label)]} %>%
   {tree$tip.label[.]}
-  
-}
-
-# function to convert various data types to tibble
-as_tibble <- function(data) {
-  
-  if("dist" %in% class(data)) {
-    
-    n <- attr(data, "Size")
-    
-    expand.grid(i = 1:n, j = 1:n) %>%
-      filter(i < j) %>%
-      mutate(object_1 = labels(data)[i]) %>%
-      mutate(object_2 = labels(data)[j]) %>%
-      mutate(distance = data[n * (i - 1) - i * (i - 1) / 2 + j - i]) %>%
-      select(- i, - j)
-    
-  }
   
 }

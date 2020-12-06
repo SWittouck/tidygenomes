@@ -4,9 +4,6 @@
 \name{tidygenomes}
 \alias{tidygenomes}
 \title{tidygenomes: A Grammar of Genome Data Manipulation}
-\description{
-tidygenomes: A Grammar of Genome Data Manipulation
-}
 \details{
 \code{tidygenomes} contains six types of functions: readers, importers,
 handlers, enhancers, getters and plotters.

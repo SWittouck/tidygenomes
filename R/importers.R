@@ -10,7 +10,7 @@
 #' `orthogroup`
 #' * a **genome tree**: should be of class `phylo`
 #' * a **genome pair table**: contains the variables `genome_1` and
-#' `genome_2`, with only unique combinations
+#' `genome_2`, with only unique combinations and without self-pairs
 #'
 #' @param data A data type that can be converted into a tidygenomes object
 #' 
@@ -86,11 +86,18 @@ as_tidygenomes <- function(data) {
   } else if (is_genome_pair_table(data)) {
     
     message("Creating tidygenomes object from genome pair table")
+    pairs <- 
+      data %>% 
+      fix_pair_order() %>%
+      filter(genome_1 != genome_2)
+    if (max(count(pairs, genome_1, genome_2)$n) > 1) {
+      stop("pairs are not unique")
+    } 
     genomes <- 
       c(data$genome_1, data$genome_2) %>%
       unique() %>%
       {tibble(genome = .)}
-    tg <- list(genomes = genomes, pairs = data)
+    tg <- list(genomes = genomes, pairs = pairs)
     
   } else {
     

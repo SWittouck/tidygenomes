@@ -20,4 +20,8 @@ This function roots a phylogenetic tree given three tip labels.
 \details{
 Tips a, b and c define exactly one internal node in the unrooted tree. The
 tree will be rooted on the branch leading from this node to tip a.
+
+The branch labels (e.g. support values) are handled correctly, i.e. moved to
+the correct nodes. When the tree is rooted on a non-tip branch, its branch
+label will be copied to both child notes of the root node.
 }

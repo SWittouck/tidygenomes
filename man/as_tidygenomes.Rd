@@ -25,7 +25,7 @@ table, genome tree or genome pair table.
 \code{orthogroup}
 \item a \strong{genome tree}: should be of class \code{phylo}
 \item a \strong{genome pair table}: contains the variables \code{genome_1} and
-\code{genome_2}, with only unique combinations
+\code{genome_2}, with only unique combinations and without self-pairs
 }
 }
 \examples{

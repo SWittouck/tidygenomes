@@ -296,9 +296,10 @@ add_gcd <- function(tg, method, binary) {
     tg %>%
     pangenome_matrix() %>%
     vegan::vegdist(method = method, binary = binary) %>%
-    as_tibble() %>%
-    rename(genome_2 = object_1, genome_1 = object_2, gcd = distance)
-  
+    dist2pairs() %>%
+    rename(genome_1 = object_1, genome_2 = object_2, gcd = distance) %>%
+    fix_pair_order()
+
   tg %>%
     modify_at("pairs", left_join, pairs_gcd, by = c("genome_1", "genome_2"))
   

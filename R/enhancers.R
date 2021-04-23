@@ -28,12 +28,21 @@
 #' @export
 add_patterns <- function(tg) {
   
-  if (is.null(tg$genes)) stop("No gene table present")
+  if (is.null(tg$genes) & is.null(tg$occurrences)) {
+    stop("No gene or occurrence table present")
+  } 
   if (is.null(tg$orthogroups)) stop("No orthogroup table present")
   
+  # if an occurrence table has been manually defined, it should not be
+  # recalculated
+  if ("occurrences" %in% names(tg)) {
+    occurrences <- tg$occurrences %>% select(genome, orthogroup)
+  } else {
+    occurrences <- tg$genes %>% distinct(genome, orthogroup) 
+  }
+  
   patterns_raw <-
-    tg$genes %>%
-    distinct(genome, orthogroup) %>%
+    occurrences %>%
     mutate(present = TRUE) %>%
     spread(key = genome, value = present, fill = FALSE) %>%
     nest(orthogroup) %>%

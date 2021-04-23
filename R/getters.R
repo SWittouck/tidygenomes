@@ -1,3 +1,27 @@
+#' Return the tree of a tidygenomes object
+#'
+#' Internally, the tree of a tidygenomes object is stored with n-numbers as tip
+#' labels. This function returns a tree with genome names as tips.
+#'
+#' @param tg A tidygenomes object
+#'
+#' @return A phylo object
+#'
+#' @export
+get_tree <- function(tg) {
+  
+  # replace tipnode names with genome names
+  lut_tips <- structure(tg$genomes$genome, names = tg$genomes$node)
+  
+  tree <- tg$tree 
+  tree$tip.label <- lut_tips[tree$tip.label]
+  names(tree$tip.label) <- NULL
+  
+  # return tree
+  tree
+  
+}
+
 #' Return a pangenome matrix
 #'
 #' This function returns the orthogroup content of the genomes in the form of a

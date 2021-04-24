@@ -18,10 +18,6 @@
 #' @export
 filter_genomes <- function(tg, ...) {
   
-  if (! is.null(tg$patterns)) {
-    stop("Tidygenomes object contains patterns")
-  }
-  
   genomes <-
     genomes_extended(tg) %>%
     filter(...) %>%
@@ -59,6 +55,22 @@ filter_genomes <- function(tg, ...) {
   if (! is.null(tg$species)) {
     
     tg$species <- filter(tg$species, species %in% tg$genomes$species)
+    
+  }
+  
+  if (! is.null(tg$patterns)) {
+    
+    tg$components <-
+      tg$components %>%
+      group_by(pattern) %>%
+      # all components of the pattern need to be retained genomes
+      filter(all(genome %in% tg$genomes$genome)) %>%
+      ungroup() 
+    
+    tg$patterns <-
+      tg$patterns %>% filter(pattern %in% tg$components$pattern)
+    
+    warning("Patterns with components in removed genomes were removed")
     
   }
   

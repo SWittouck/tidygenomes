@@ -92,9 +92,10 @@ upset_plot <- function(
     mutate(genome_name_fct = factor(
       !! genome_name, levels = !! genome_name
     )) %>%
-    mutate(genome_bold = !! genome_bold) 
-    # # the following line gives trouble and seems unnecessary
-    # select(- is_phylogroup_ancestor, - node) 
+    mutate(genome_bold = !! genome_bold)
+  
+  genomes$is_phylogroup_ancestor <- NULL
+  genomes$node <- NULL
   
   if (phylogroups) {
     

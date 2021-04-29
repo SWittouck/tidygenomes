@@ -310,6 +310,7 @@ add_gcd <- function(tg, method, binary) {
     fix_pair_order()
 
   tg %>%
+    modify_at("pairs", fix_pair_order) %>%
     modify_at("pairs", left_join, pairs_gcd, by = c("genome_1", "genome_2"))
   
 }

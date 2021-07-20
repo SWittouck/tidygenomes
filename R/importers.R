@@ -261,22 +261,21 @@ add_phylogroups <- function(tg, phylogroups, genome_identifier = genome) {
     # put known phylogroups in numeric vector, where numbers represent node
     # numbers
     nodes_phylogroups <- 
-      tg$nodes %>%
-      left_join(phylogroups, by = c("node" = "genome_type")) %>%
-      right_join(
-        tibble(node = c(tg$tree$tip.label, tg$tree$node.label)),
-        by = "node"
+      tibble(
+        node = c(tg$tree$tip.label, tg$tree$node.label)
       ) %>%
+      left_join(tg$nodes, by = "node") %>%
+      left_join(phylogroups, by = c("node" = "genome_type")) %>%
       pull(phylogroup)
     
     # initialize empty vector with node numbers of phylogroup ancestors
     ancestral_nodes <- numeric()
     
-    # children-first traversal: infer phylogroups from children
-    tree <- tg$tree %>% ape::reorder.phylo("postorder") 
-    parents <- unique(tree$edge[, 1])
+    # tips-first traversal: infer phylogroups from children
+    tg$tree <- tg$tree
+    parents <- nodes_postorder(tg$tree) %>% {.[. %in% tg$tree$edge[, 1]]}
     for (parent in parents) {
-      children <- tree$edge[tree$edge[, 1] == parent, 2]
+      children <- tg$tree$edge[tg$tree$edge[, 1] == parent, 2]
       children_phylogroup <- 
         nodes_phylogroups[children] %>%
         {.[! is.na(.)]}
@@ -292,13 +291,11 @@ add_phylogroups <- function(tg, phylogroups, genome_identifier = genome) {
     ancestral_nodes <- 
       ancestral_nodes[nodes_phylogroups[ancestral_nodes] != "no phylogroup"]
     
-    # parents-first traversal: infer phylogroups from parents
-    root <- tree$edge[nrow(tree$edge), 1]
-    nodes_phylogroups[root] <- "no phylogroup"
-    for (child_row in nrow(tree$edge):1) {
-      child <- tree$edge[child_row, 2]
+    # root-first traversal: infer phylogroups from parents
+    children <- nodes_preorder(tg$tree) %>% {.[. %in% tg$tree$edge[, 2]]}
+    for (child in children) {
       if (is.na(nodes_phylogroups[child])) {
-        parent <- tree$edge[child_row, 1]
+        parent <- tg$tree$edge[tg$tree$edge[, 2] == child, 1]
         nodes_phylogroups[child] <- nodes_phylogroups[parent]
       }
     }
@@ -310,7 +307,7 @@ add_phylogroups <- function(tg, phylogroups, genome_identifier = genome) {
         phylogroup = nodes_phylogroups
       ) %>%
       mutate(
-        node = c(tree$tip.label, tree$node.label)[node_number],
+        node = c(tg$tree$tip.label, tg$tree$node.label)[node_number],
         is_phylogroup_ancestor = node_number %in% ancestral_nodes
       ) %>%
       select(- node_number)

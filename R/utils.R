@@ -1,3 +1,51 @@
+#' Perform postorder tree traversal
+#'
+#' This functions returns the node numbers of a tree in order of postorder tree
+#' traversal (tips first).
+#'
+#' @param tree An object of the class phylo
+#'
+#' @return A numeric vector with node numbers
+#'
+#' @export
+nodes_postorder <- 
+  function(tree, node = setdiff(tree$edge[, 1], tree$edge[, 2]), nodes = c()) {
+    # note on the implementation:
+    # - it is recursive 
+    # - the node argument starts on the root node 
+    # - the nodes argument starts as an empty vector
+    children <- tree$edge %>% {.[.[, 1] == node, 2]}
+    for (child in children) {
+      nodes <- nodes_postorder(tree, child, nodes) 
+    }
+    nodes <- c(nodes, node)
+    nodes
+  }
+
+#' Perform preorder tree traversal
+#'
+#' This functions returns the node numbers of a tree in order of preorder tree
+#' traversal (root first).
+#'
+#' @param tree An object of the class phylo
+#'
+#' @return A numeric vector with node numbers
+#'
+#' @export
+nodes_preorder <- 
+  function(tree, node = setdiff(tree$edge[, 1], tree$edge[, 2]), nodes = c()) {
+    # note on the implementation:
+    # - it is recursive 
+    # - the node argument starts on the root node 
+    # - the nodes argument starts as an empty vector
+    nodes <- c(nodes, node)
+    children <- tree$edge %>% {.[.[, 1] == node, 2]}
+    for (child in children) {
+      nodes <- nodes_preorder(tree, child, nodes) 
+    }
+    nodes
+  }
+
 #' Complement the pairs of a pair table
 #'
 #' For each unique pair of objects (a, b), the function adds a row for the pair

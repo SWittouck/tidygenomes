@@ -164,18 +164,21 @@ fix_pair_order <- function(pairs) {
 #'
 #' Tips a, b and c define exactly one internal node in the unrooted tree. The
 #' tree will be rooted on the branch leading from this node to tip a.
-#' 
-#' The branch labels (e.g. support values) are handled correctly, i.e. moved to
-#' the correct nodes. When the tree is rooted on a non-tip branch, its branch
-#' label will be copied to both child notes of the root node.
-#' 
+#'
+#' By default, node/tip labels are interpreted as vertex labels, not edge
+#' labels. When the labels actually represent edge labels (e.g., branch support
+#' values), set edge_label to TRUE. This will make sure that the edge labels are
+#' handled correctly, i.e. moved to the correct nodes. In that case, when the
+#' tree is rooted on a non-tip branch, its edge label will be copied to both
+#' child nodes of the new root node.
+#'
 #' @param tree An object of class phylo
-#' @param tips Three tip labels 
-#' 
+#' @param tips Three tip labels
+#'
 #' @return An object of class phylo
-#' 
+#'
 #' @export
-root_tree.phylo <- function(tree, tips) {
+root_tree.phylo <- function(tree, tips, edge_label = F) {
   
   if (! "phylo" %in% class(tree)) {
     stop("tree should be of class phylo")
@@ -188,7 +191,7 @@ root_tree.phylo <- function(tree, tips) {
     {.[. > length(tree$tip.label)]} %>%
     {.[. == max(.)]} %>%
     {.[1]}
-  tree <- tree %>% ape::root.phylo(node = root_new, edgelabel = T)
+  tree <- tree %>% ape::root.phylo(node = root_new, edgelabel = edge_label)
   
   # resolve root node such that first tip is (part of) outgroup
   outgroup <-
@@ -198,7 +201,9 @@ root_tree.phylo <- function(tree, tips) {
     names()
   tree <- 
     tree %>% 
-    ape::root.phylo(outgroup = outgroup, edgelabel = T, resolve.root = T)
+    ape::root.phylo(
+      outgroup = outgroup, edgelabel = edge_label, resolve.root = T
+    )
   
   # divide root branch length
   if ("edge.length" %in% names(tree)) {
@@ -253,7 +258,11 @@ root_tree <- function(tg, root, genome_identifier = genome) {
     stop("Not all nodes were found")
   }
   
-  tg$tree <- tg$tree %>% root_tree.phylo(tips) 
+  # Important: for the rooting, the node/tip labels should be considered vertex
+  # labels, not edge labels. Otherwise, the node/tip label that corresponds to
+  # the new root branch will be duplicated. This should not happen for a
+  # tidygenomes tree because the node/tip labels are assumed to be unique.
+  tg$tree <- tg$tree %>% root_tree.phylo(tips, edge_label = F) 
   
   tg
   

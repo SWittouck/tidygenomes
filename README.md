@@ -22,4 +22,4 @@ Disclaimer: tidygenomes is software developed alongside some specific research p
 You can install the latest, semi-stable version of tidygenomes by running the following code:
 
     # install.packages("devtools")
-    devtools::install_github("swittouck/tidygenomes", ref = "v0.1.0")
+    devtools::install_github("swittouck/tidygenomes")

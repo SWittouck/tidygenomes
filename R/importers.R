@@ -76,6 +76,7 @@ as_tidygenomes <- function(data) {
     tip_label_new <- paste0("n", (Nnode + 1):(Nnode + Ntip))
     data$node.label <- node_label_new
     data$tip.label <- tip_label_new
+    if (is.null(node_label)) node_label <- rep(NA, Nnode)
     nodes <- tibble(
       node = c(node_label_new, tip_label_new),
       node_label = c(node_label, rep(NA, Ntip))

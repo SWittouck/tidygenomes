@@ -18,3 +18,9 @@ An object of class \code{phylo}
 This function adds a branch to the root of the tree, adding one extra node in
 the process.
 }
+\examples{
+tree <- ape::read.tree(text = "(a:1, b:1);")
+tree <- add_rootbranch(tree)
+plot(tree)
+
+}

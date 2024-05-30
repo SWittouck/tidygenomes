@@ -1,6 +1,6 @@
 #' tidygenomes: A Grammar of Genome Data Manipulation
 #' 
-#' @docType package
+#' @docType _PACKAGE
 #' @name tidygenomes
 #' 
 #' @import dplyr

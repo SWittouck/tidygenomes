@@ -278,7 +278,7 @@ root_tree <- function(tg, root, genome_identifier = genome) {
 #' 
 #' @return An object of class `phylo`
 #' 
-#' @example 
+#' @examples
 #' tree <- ape::read.tree(text = "(a:1, b:1);")
 #' tree <- add_rootbranch(tree)
 #' plot(tree)

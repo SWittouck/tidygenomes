@@ -1,16 +1,21 @@
 #' Call `ggtree()` and add metadata
 #'
-#' This function calls [ggtree::ggtree()] on the tree component of a tidygenomes object and
-#' adds all available genome and node metadata.
+#' This function calls the `ggtree` function of the ggtree package on the tree
+#' component of a tidygenomes object and adds all available genome and node
+#' metadata.
 #'
 #' @param tg A tidygenomes object
 #' @param ... Extra arguments to pass on to `ggtree()`
 #' 
 #' @return A ggplot object
 #' 
-#' @importFrom ggtree %<+%
 #' @export
 ggtree_augmented <- function(tg, ...) {
+  
+  # verify whether ggtree package is attached
+  if (! "ggtree" %in% .packages()) {
+    stop(paste("The ggtree package must be loaded to use this function"))
+  }
   
   if (! is.null(tg$phylogroups)) {
     

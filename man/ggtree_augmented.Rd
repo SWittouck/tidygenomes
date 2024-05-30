@@ -15,6 +15,7 @@ ggtree_augmented(tg, ...)
 A ggplot object
 }
 \description{
-This function calls \code{\link[ggtree:ggtree]{ggtree::ggtree()}} on the tree component of a tidygenomes object and
-adds all available genome and node metadata.
+This function calls the \code{ggtree} function of the ggtree package on the tree
+component of a tidygenomes object and adds all available genome and node
+metadata.
 }

@@ -1,6 +1,7 @@
+.Rbuildignore
 .Rproj.user
-.Rhistory
-.RData
-.Ruserdata
 
-*.Rproj
+manual.pdf
+notes.md
+tests
+tidygenomes.Rproj

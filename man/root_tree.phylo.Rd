@@ -4,7 +4,7 @@
 \alias{root_tree.phylo}
 \title{Root tree given three tips}
 \usage{
-root_tree.phylo(tree, tips)
+root_tree.phylo(tree, tips, edge_label = F)
 }
 \arguments{
 \item{tree}{An object of class phylo}
@@ -21,7 +21,10 @@ This function roots a phylogenetic tree given three tip labels.
 Tips a, b and c define exactly one internal node in the unrooted tree. The
 tree will be rooted on the branch leading from this node to tip a.
 
-The branch labels (e.g. support values) are handled correctly, i.e. moved to
-the correct nodes. When the tree is rooted on a non-tip branch, its branch
-label will be copied to both child notes of the root node.
+By default, node/tip labels are interpreted as vertex labels, not edge
+labels. When the labels actually represent edge labels (e.g., branch support
+values), set edge_label to TRUE. This will make sure that the edge labels are
+handled correctly, i.e. moved to the correct nodes. In that case, when the
+tree is rooted on a non-tip branch, its edge label will be copied to both
+child nodes of the new root node.
 }
